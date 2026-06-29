@@ -1,0 +1,70 @@
+class ColaImpresionCircular {
+    constructor(tamano) {
+        this.capacidad = tamano;
+        // Un arreglo con un tamaño fijo predefinido
+        this.arregloDocumentos = new Array(this.capacidad); 
+        this.inicio = 0; // Puntero Frente (FIFO)
+        this.fin = -1;   // Puntero Final
+        this.cantidadActual = 0;
+    }
+
+    // Método ENCOLAR (Ingresar un nuevo documento a la fila)
+    mandarAImprimir(nombreDocumento) {
+        if (this.cantidadActual === this.capacidad) {
+            console.log(" Error: La memoria de la impresora está LLENA. Espera a que imprima.");
+            return;
+        }
+        
+        // El módulo (%) recicla el espacio. Si 'fin' llega al límite, vuelve a 0.
+        this.fin = (this.fin + 1) % this.capacidad;
+        this.arregloDocumentos[this.fin] = nombreDocumento;
+        this.cantidadActual++;
+        
+        console.log(` Se recibió el documento: [${nombreDocumento}]. Está en la posición: ${this.fin}`);
+    }
+
+    //  Método DESENCOLAR (La impresora saca el papel impreso - Lógica FIFO)
+    procesarImpresion() {
+        if (this.cantidadActual === 0) {
+            console.log(" La cola está VACÍA. No hay nada que imprimir.");
+            return;
+        }
+        
+        const documentoImpreso = this.arregloDocumentos[this.inicio];
+        console.log(` IMPRIMIENDO: ${documentoImpreso} (Saliendo de la posición ${this.inicio})`);
+        
+        // Movemos el puntero de inicio de forma circular
+        this.inicio = (this.inicio + 1) % this.capacidad;
+        this.cantidadActual--;
+    }
+}
+
+// Pruebas 
+// Creamos una cola circular de SOLO 3 espacios para demostrar el reciclaje
+const impresora = new ColaImpresionCircular(3);
+
+console.log("--- INICIANDO SISTEMA DE IMPRESIÓN ---");
+
+// Llenamos la cola (Encolar)
+impresora.mandarAImprimir("Reporte_Ventas.pdf");
+impresora.mandarAImprimir("Foto_Graduacion.png");
+impresora.mandarAImprimir("Contrato_Laboral.docx");
+
+// Si intentamos meter uno más, debe dar error porque está llena
+impresora.mandarAImprimir("Receta_Medica.pdf"); 
+
+console.log("\n--- PROCESANDO IMPRESIONES (FIFO) ---");
+// Imprimimos los dos primeros (Desencolar). Sale primero Ventas, luego Foto.
+impresora.procesarImpresion(); 
+impresora.procesarImpresion();
+
+console.log("\n--- DEMOSTRANDO EL RECICLAJE (COLA CIRCULAR) ---");
+// Como ya salieron 2, las posiciones iniciales (0 y 1) están libres.
+// Al agregar nuevos, los punteros deben dar la vuelta sin crashear.
+impresora.mandarAImprimir("Factura_Mes.pdf");
+impresora.mandarAImprimir("Planos_Arquitectura.dwg");
+
+console.log("\n--- VACIANDO LA COLA ---");
+impresora.procesarImpresion(); // Imprime Contrato
+impresora.procesarImpresion(); // Imprime Factura
+impresora.procesarImpresion(); // Imprime Planos
